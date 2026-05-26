@@ -1,48 +1,77 @@
 package com.example.appartmentapp
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.appartmentapp.di.AppContainer
+import com.example.appartmentapp.presentation.dashboard.DashboardScreen
+import com.example.appartmentapp.presentation.dashboard.DashboardViewModel
+import com.example.appartmentapp.presentation.login.LoginScreen
+import com.example.appartmentapp.presentation.login.LoginViewModel
+import com.example.appartmentapp.presentation.signup.SignupScreen
+import com.example.appartmentapp.presentation.signup.SignupViewModel
+import com.example.appartmentapp.presentation.forgotpassword.ForgotPasswordScreen
+import com.example.appartmentapp.presentation.forgotpassword.ForgotPasswordViewModel
 import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
 
-import appartmentapp.app.shared.generated.resources.Res
-import appartmentapp.app.shared.generated.resources.compose_multiplatform
+enum class Screen {
+    Login, Signup, Dashboard, ForgotPassword
+}
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+        val appContainer = remember { AppContainer() }
+        var currentScreen by remember { mutableStateOf(Screen.Login) }
+
+        when (currentScreen) {
+            Screen.Login -> {
+                val loginViewModel: LoginViewModel = viewModel {
+                    LoginViewModel(appContainer.loginUseCase)
                 }
+                LoginScreen(
+                    viewModel = loginViewModel,
+                    onNavigateToSignup = { currentScreen = Screen.Signup },
+                    onNavigateToForgotPassword = { currentScreen = Screen.ForgotPassword },
+                    onLoginSuccess = { currentScreen = Screen.Dashboard }
+                )
+            }
+            Screen.Signup -> {
+                val signupViewModel: SignupViewModel = viewModel {
+                    SignupViewModel(appContainer.signupUseCase)
+                }
+                SignupScreen(
+                    viewModel = signupViewModel,
+                    onNavigateToLogin = { currentScreen = Screen.Login },
+                    onSignupSuccess = { currentScreen = Screen.Dashboard }
+                )
+            }
+            Screen.ForgotPassword -> {
+                val forgotPasswordViewModel: ForgotPasswordViewModel = viewModel {
+                    ForgotPasswordViewModel(
+                        appContainer.forgotPasswordUseCase,
+                        appContainer.verifyOtpUseCase,
+                        appContainer.resetPasswordUseCase
+                    )
+                }
+                ForgotPasswordScreen(
+                    viewModel = forgotPasswordViewModel,
+                    onNavigateBack = { currentScreen = Screen.Login },
+                    onSuccess = { currentScreen = Screen.Login }
+                )
+            }
+            Screen.Dashboard -> {
+                val dashboardViewModel: DashboardViewModel = viewModel {
+                    DashboardViewModel(
+                        appContainer.getDashboardDataUseCase,
+                        appContainer.logoutUseCase
+                    )
+                }
+                DashboardScreen(
+                    viewModel = dashboardViewModel,
+                    onLogout = { currentScreen = Screen.Login }
+                )
             }
         }
     }
