@@ -30,7 +30,23 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
 - Web app:
   - Wasm target (faster, modern browsers): `./gradlew :app:webApp:wasmJsBrowserDevelopmentRun`
   - JS target (slower, supports older browsers): `./gradlew :app:webApp:jsBrowserDevelopmentRun`
-- iOS app: open the [/app/iosApp](./app/iosApp) directory in Xcode and run it from there.
+- iOS app:
+  - Open the [/app/iosApp](./app/iosApp) directory in Xcode and run it from there.
+  - **Command Line (Simulator):**
+    ```sh
+    # 1. Find your simulator UDID
+    xcrun simctl list devices
+
+    # 2. Build for simulator (replace <UDID> with yours)
+    cd app/iosApp
+    xcodebuild -scheme iosApp \
+      -project iosApp.xcodeproj \
+      -destination 'id=<UDID>' \
+      build
+
+    # 3. Launch in booted simulator
+    xcrun simctl launch booted com.example.appartmentapp.AppartmentApp
+    ```
 
 ### Running tests
 
