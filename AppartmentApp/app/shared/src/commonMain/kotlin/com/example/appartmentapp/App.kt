@@ -1,6 +1,5 @@
 package com.example.appartmentapp
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appartmentapp.di.AppContainer
@@ -12,16 +11,15 @@ import com.example.appartmentapp.presentation.signup.SignupScreen
 import com.example.appartmentapp.presentation.signup.SignupViewModel
 import com.example.appartmentapp.presentation.forgotpassword.ForgotPasswordScreen
 import com.example.appartmentapp.presentation.forgotpassword.ForgotPasswordViewModel
-import androidx.compose.ui.tooling.preview.Preview
+import com.example.appartmentapp.presentation.NoBrokerTheme
 
 enum class Screen {
     Login, Signup, Dashboard, ForgotPassword
 }
 
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
+    NoBrokerTheme {
         val appContainer = remember { AppContainer() }
         var currentScreen by remember { mutableStateOf(Screen.Login) }
 
